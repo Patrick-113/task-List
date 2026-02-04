@@ -5,6 +5,6 @@ namespace TodoListApi.Database
   public class MemoryDB
   {
     public List<Todo> TodoMemory { get; } = new();
-    public List<User> UserMemory { get; set; }
+    public List<User> UserMemory { get; } = new();
   }
 }

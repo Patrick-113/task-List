@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApi.Database;
 using TodoListApi.Entities;
 
 namespace TodoListApi.Controllers
 {
+  [Authorize]
   [Route("/todos")]
   [ApiController]
   public class TodoController : ControllerBase
