@@ -1,6 +1,9 @@
 @TodoListApi_HostAddress = http://localhost:5205
 
-GET {{TodoListApi_HostAddress}}/weatherforecast/
+GET {{TodoListApi_HostAddress}}/todos/
 Accept: application/json
 
 ###
+
+POST {{TodoListApi_HostAddress}}/todos/
+content: { "id": 1, "Title": "Tarefa teste", "Description": "Teste"}
