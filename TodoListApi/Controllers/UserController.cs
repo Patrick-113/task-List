@@ -40,9 +40,9 @@ namespace TodoListApi.Controllers
       );
       _memory.UserMemory.Add(user);
 
-      var token = _tokenService.GenerateToken(user.Name);
+      var load = new UserViewModel(user.Id, _tokenService.GenerateToken(user.Name));
 
-      return Ok(new {Token = token});
+      return Ok(load);
     }
 
     [Route("/account/login")]
@@ -58,8 +58,8 @@ namespace TodoListApi.Controllers
         return NotFound();
       } else if (user.Password.SequenceEqual(_password))
       {
-        var token = _tokenService.GenerateToken(user.Name);
-        return Ok(new {Token = token});
+        var load = new UserViewModel(user.Id, _tokenService.GenerateToken(user.Name));
+        return Ok(load);
       } else
       {
         return NotFound();

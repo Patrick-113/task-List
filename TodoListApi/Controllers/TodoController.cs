@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApi.Database;
 using TodoListApi.Entities;
+using TodoListApi.Models;
 
 namespace TodoListApi.Controllers
 {
-  [Authorize]
+  // [Authorize]
   [Route("/todos")]
   [ApiController]
   public class TodoController : ControllerBase
@@ -17,27 +18,28 @@ namespace TodoListApi.Controllers
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public IActionResult GetAll(Guid UserId)
     {
-      if (_memory.TodoMemory == null)
-      {
-        return NotFound();
-      }
-
-      return Ok(_memory.TodoMemory);
+      // Guid id = Guid.Parse(UserId);
+      // var load = _memory.TodoMemory.Where(t => t.UserId.Equals(UserId)).ToList();
+      var load = _memory.TodoMemory.SingleOrDefault(t => t.UserId == UserId);
+      return Ok(load);
     }
 
     [HttpPost]
-    public IActionResult Post(Todo input)
+    public IActionResult Post(TodoInputModel input)
     {
-      _memory.TodoMemory.Add(input);
+      int id = (_memory.TodoMemory.Count(t => t.UserId == input.UserId) == 0) ? 1 : _memory.TodoMemory.Last(t => t.UserId == input.UserId).Id + 1;
+
+      Todo item = new Todo(id, input.Title, input.Description, input.UserId);
+      _memory.TodoMemory.Add(item);
       return Created("/todos", input);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, Todo input)
+    public IActionResult Put(int id, TodoInputModel input)
     {
-      var todo = _memory.TodoMemory.SingleOrDefault(t => t.id == id);
+      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
       if (todo == null)
       {
         return NotFound();
@@ -48,9 +50,9 @@ namespace TodoListApi.Controllers
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(int id, Guid userId)
     {
-      var todo = _memory.TodoMemory.SingleOrDefault(t => t.id == id);
+      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == userId);
       if (todo == null)
       {
         return NotFound();
