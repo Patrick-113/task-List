@@ -6,4 +6,9 @@ namespace TodoListApi.Models
     public required string Description { get; set; }
     public required Guid UserId {get; set;}
   }
+
+  public class TodoChangeModel
+  {
+    public required Guid UserId { get; set; }
+  }
 }

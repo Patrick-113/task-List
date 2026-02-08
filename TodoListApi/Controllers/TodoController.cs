@@ -18,11 +18,9 @@ namespace TodoListApi.Controllers
     }
 
     [HttpGet]
-    public IActionResult GetAll(Guid UserId)
+    public IActionResult GetAll(TodoChangeModel input)
     {
-      // Guid id = Guid.Parse(UserId);
-      // var load = _memory.TodoMemory.Where(t => t.UserId.Equals(UserId)).ToList();
-      var load = _memory.TodoMemory.SingleOrDefault(t => t.UserId == UserId);
+      var load = _memory.TodoMemory.Where(t => t.UserId == input.UserId).ToList();
       return Ok(load);
     }
 
@@ -47,6 +45,19 @@ namespace TodoListApi.Controllers
 
       todo.Update(input.Title, input.Description);
       return NoContent();
+    }
+
+    [HttpPatch("{id}")]
+    public IActionResult Patch(int id, TodoChangeModel input)
+    {
+      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
+      if (todo == null)
+      {
+        return NotFound();
+      }
+
+      todo.UpdateStatus();
+      return Ok(todo);
     }
 
     [HttpDelete("{id}")]
