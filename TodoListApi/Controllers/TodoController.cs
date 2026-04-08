@@ -11,65 +11,74 @@ namespace TodoListApi.Controllers
   [ApiController]
   public class TodoController : ControllerBase
   {
-    private readonly MemoryDB _memory;
-    public TodoController(MemoryDB memory)
+    private readonly TodoDbContext _context;
+    public TodoController(TodoDbContext context)
     {
-      _memory = memory;
+      _context = context;
     }
 
     [HttpGet]
     public IActionResult GetAll(TodoChangeModel input)
     {
-      var load = _memory.TodoMemory.Where(t => t.UserId == input.UserId).ToList();
+      var load = _context.Todos.Where(t => t.UserId == input.UserId).ToList();
       return Ok(load);
     }
 
     [HttpPost]
     public IActionResult Post(TodoInputModel input)
     {
-      int id = (_memory.TodoMemory.Count(t => t.UserId == input.UserId) == 0) ? 1 : _memory.TodoMemory.Last(t => t.UserId == input.UserId).Id + 1;
+      int id = (_context.Todos.Count(t => t.UserId == input.UserId) == 0) ? 1 : _context.Todos.Last(t => t.UserId == input.UserId).Id + 1;
 
       Todo item = new Todo(id, input.Title, input.Description, input.UserId);
-      _memory.TodoMemory.Add(item);
+      _context.Todos.Add(item);
+      _context.SaveChanges();
       return Created("/todos", input);
     }
 
     [HttpPut("{id}")]
     public IActionResult Put(int id, TodoInputModel input)
     {
-      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
+      var todo = _context.Todos.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
       if (todo == null)
       {
         return NotFound();
       }
 
       todo.Update(input.Title, input.Description);
+      _context.Todos.Update(todo);
+      _context.SaveChanges();
+
       return NoContent();
     }
 
     [HttpPatch("{id}")]
     public IActionResult Patch(int id, TodoChangeModel input)
     {
-      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
+      var todo = _context.Todos.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
       if (todo == null)
       {
         return NotFound();
       }
 
       todo.UpdateStatus();
+      _context.Todos.Update(todo);
+      _context.SaveChanges();
+
       return Ok(todo);
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id, Guid userId)
+    public IActionResult Delete(int id, TodoChangeModel input)
     {
-      var todo = _memory.TodoMemory.SingleOrDefault(t => t.Id == id && t.UserId == userId);
+      var todo = _context.Todos.SingleOrDefault(t => t.Id == id && t.UserId == input.UserId);
       if (todo == null)
       {
         return NotFound();
       }
 
-      _memory.TodoMemory.Remove(todo);
+      _context.Todos.Remove(todo);
+      _context.SaveChanges();
+
       return NoContent();
     }
   }

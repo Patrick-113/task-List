@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TodoListApi.Authentication;
 using TodoListApi.Database;
@@ -8,8 +9,9 @@ using TodoListApi.Database;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("TodoListCs");
+builder.Services.AddDbContext<TodoDbContext>(o => o.UseNpgsql(connectionString));
 
-builder.Services.AddSingleton<MemoryDB>();
 builder.Services.AddSingleton<TokenService>();
 
 builder.Services.AddControllers();

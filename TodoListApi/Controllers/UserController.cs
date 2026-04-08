@@ -11,19 +11,19 @@ namespace TodoListApi.Controllers
   [ApiController]
   public class UserController : ControllerBase
   {
-    private readonly MemoryDB _memory;
+    private readonly TodoDbContext _context;
     private readonly TokenService _tokenService;
-    public UserController(MemoryDB memory, TokenService tokenService)
+    public UserController(TokenService tokenService, TodoDbContext context)
     {
-      _memory = memory;
       _tokenService = tokenService;
+      _context = context;
     }
 
     [Route("/account")]
     [HttpGet]
     public IActionResult GetAll()
     {
-      return Ok(_memory.UserMemory);
+      return Ok(_context.Users);
     }
 
     [Route("/account/register")]
@@ -38,7 +38,9 @@ namespace TodoListApi.Controllers
         input.Email,
         Password
       );
-      _memory.UserMemory.Add(user);
+
+      _context.Users.Add(user);
+      _context.SaveChanges();
 
       var load = new UserViewModel(user.Id, _tokenService.GenerateToken(user.Name));
 
@@ -51,7 +53,7 @@ namespace TodoListApi.Controllers
     {
       var hash = SHA256.Create();
       var _password = hash.ComputeHash(Encoding.UTF8.GetBytes(input.Password));
-      var user = _memory.UserMemory.SingleOrDefault(u => u.Email == input.Email);
+      var user = _context.Users.SingleOrDefault(u => u.Email == input.Email);
 
       if (user == null)
       {
